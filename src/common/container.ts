@@ -7,6 +7,7 @@ import { ConsultarNfseService } from "../services/consultar-nfse-service.js";
 import { EmitirNfseService } from "../services/emitir-nfse-service.js";
 import { EventosNfseService } from "../services/eventos-nfse-service.js";
 import { ParametrosMunicipaisService } from "../services/parametros-municipais-service.js";
+import { tpAmbFromSefinEnv } from "../services/build-dps-xml.js";
 
 export type AppContainer = {
   env: Env;
@@ -33,7 +34,10 @@ export function createContainer(
   return {
     env,
     gateway,
-    emitirNfseService: new EmitirNfseService(gateway),
+    emitirNfseService: new EmitirNfseService(
+      gateway,
+      tpAmbFromSefinEnv(env.SEFIN_ENV),
+    ),
     consultarNfseService: new ConsultarNfseService(gateway),
     consultarDpsService: new ConsultarDpsService(gateway),
     eventosNfseService: new EventosNfseService(gateway),

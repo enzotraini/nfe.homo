@@ -57,4 +57,9 @@ describe("buildDpsXml", () => {
     assert.match(xml, /<pTotTribSN>6<\/pTotTribSN>/);
     assert.doesNotMatch(xml, /<Signature/);
   });
+
+  it("gera tpAmb=1 quando o ambiente é produção", () => {
+    const xml = buildDpsXml(sample, new Date("2026-08-24T13:00:00-03:00"), "1");
+    assert.match(xml, /<tpAmb>1<\/tpAmb>/);
+  });
 });

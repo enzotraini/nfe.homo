@@ -15,7 +15,19 @@ export function buildDpsId(input: {
   return `DPS${input.codigoMunicipio}${input.tipoInscricao}${insc}${input.serie.padStart(5, "0")}${input.nDPS.padStart(15, "0")}`;
 }
 
-export function buildDpsXml(dps: DpsJsonInput, now = new Date()): string {
+export type TipoAmbienteSefin = "1" | "2";
+
+export function tpAmbFromSefinEnv(
+  sefinEnv: "producao-restrita" | "producao",
+): TipoAmbienteSefin {
+  return sefinEnv === "producao" ? "1" : "2";
+}
+
+export function buildDpsXml(
+  dps: DpsJsonInput,
+  now = new Date(),
+  tpAmb: TipoAmbienteSefin = "2",
+): string {
   assertDps(dps);
 
   const cnpj = dps.prestador.cnpj.replace(/\D/g, "");
@@ -44,7 +56,7 @@ export function buildDpsXml(dps: DpsJsonInput, now = new Date()): string {
       ? `<regApTribSN>${dps.prestador.regApTribSN ?? "1"}</regApTribSN>`
       : "";
 
-  return `<?xml version="1.0" encoding="UTF-8"?><DPS xmlns="${NFSE_NS}" versao="1.01"><infDPS Id="${escapeXml(id)}"><tpAmb>2</tpAmb><dhEmi>${dhEmi}</dhEmi><verAplic>${VER_APLIC}</verAplic><serie>${escapeXml(dps.serie)}</serie><nDPS>${escapeXml(dps.nDPS)}</nDPS><dCompet>${dCompet}</dCompet><tpEmit>1</tpEmit><cLocEmi>${dps.codigoMunicipio}</cLocEmi><prest><CNPJ>${cnpj}</CNPJ>${im}<regTrib><opSimpNac>${dps.prestador.opSimpNac}</opSimpNac>${regAp}<regEspTrib>${dps.prestador.regEspTrib ?? "0"}</regEspTrib></regTrib></prest><toma>${tomaDoc}<xNome>${escapeXml(dps.tomador.nome)}</xNome></toma><serv><locPrest><cLocPrestacao>${cLocPrestacao}</cLocPrestacao></locPrest><cServ><cTribNac>${escapeXml(dps.servico.cTribNac)}</cTribNac>${dps.servico.cTribMun ? `<cTribMun>${escapeXml(dps.servico.cTribMun)}</cTribMun>` : ""}<xDescServ>${escapeXml(dps.servico.descricao)}</xDescServ></cServ></serv><valores><vServPrest><vServ>${formatDec(dps.valores.vServ)}</vServ></vServPrest><trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun><totTrib>${buildTotTribXml(dps)}</totTrib></trib></valores></infDPS></DPS>`;
+  return `<?xml version="1.0" encoding="UTF-8"?><DPS xmlns="${NFSE_NS}" versao="1.01"><infDPS Id="${escapeXml(id)}"><tpAmb>${tpAmb}</tpAmb><dhEmi>${dhEmi}</dhEmi><verAplic>${VER_APLIC}</verAplic><serie>${escapeXml(dps.serie)}</serie><nDPS>${escapeXml(dps.nDPS)}</nDPS><dCompet>${dCompet}</dCompet><tpEmit>1</tpEmit><cLocEmi>${dps.codigoMunicipio}</cLocEmi><prest><CNPJ>${cnpj}</CNPJ>${im}<regTrib><opSimpNac>${dps.prestador.opSimpNac}</opSimpNac>${regAp}<regEspTrib>${dps.prestador.regEspTrib ?? "0"}</regEspTrib></regTrib></prest><toma>${tomaDoc}<xNome>${escapeXml(dps.tomador.nome)}</xNome></toma><serv><locPrest><cLocPrestacao>${cLocPrestacao}</cLocPrestacao></locPrest><cServ><cTribNac>${escapeXml(dps.servico.cTribNac)}</cTribNac>${dps.servico.cTribMun ? `<cTribMun>${escapeXml(dps.servico.cTribMun)}</cTribMun>` : ""}<xDescServ>${escapeXml(dps.servico.descricao)}</xDescServ></cServ></serv><valores><vServPrest><vServ>${formatDec(dps.valores.vServ)}</vServ></vServPrest><trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun><totTrib>${buildTotTribXml(dps)}</totTrib></trib></valores></infDPS></DPS>`;
 }
 
 function assertDps(dps: DpsJsonInput): void {

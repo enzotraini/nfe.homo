@@ -1,10 +1,13 @@
 import { ValidationError } from "../errors/domain-errors.js";
 import type { NfseGateway } from "../repositories/nfse-gateway.js";
 import type { EmitirNfseInput, EmitirNfseResult } from "../entities/nfse.js";
-import { buildDpsXml } from "./build-dps-xml.js";
+import { buildDpsXml, type TipoAmbienteSefin } from "./build-dps-xml.js";
 
 export class EmitirNfseService {
-  constructor(private readonly gateway: NfseGateway) {}
+  constructor(
+    private readonly gateway: NfseGateway,
+    private readonly tpAmb: TipoAmbienteSefin = "2",
+  ) {}
 
   async execute(input: EmitirNfseInput): Promise<EmitirNfseResult> {
     const xmlDps = this.resolveXml(input);
@@ -26,7 +29,7 @@ export class EmitirNfseService {
     }
 
     if (input.dps) {
-      return buildDpsXml(input.dps);
+      return buildDpsXml(input.dps, new Date(), this.tpAmb);
     }
 
     throw new ValidationError("Informe xmlDps ou dps");
